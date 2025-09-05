@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Player Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .test-button {
+            background: #8B2635;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #5A1A1A;
+        }
+    </style>
+</head>
+<body>
+    <h1>Audio Player Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Test Controls</h2>
+        <button class="test-button" onclick="testLoadSongs()">Load Songs Playlist</button>
+        <button class="test-button" onclick="testLoadInstrumentals()">Load Instrumentals Playlist</button>
+        <button class="test-button" onclick="testPlayTrack()">Play First Track</button>
+        <button class="test-button" onclick="testVolume()">Test Volume Controls</button>
+        <button class="test-button" onclick="testMobileProgress()">Test Mobile Progress Bar</button>
+        <button class="test-button" onclick="testProgressBar()">Test Progress Bar</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Debug Progress Bar</h2>
+        <div id="debugInfo" style="background: #f0f0f0; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px;">
+            <div>Progress Bar Element: <span id="progressBarStatus">Checking...</span></div>
+            <div>Audio Duration: <span id="audioDuration">Unknown</span></div>
+            <div>Current Time: <span id="currentTime">Unknown</span></div>
+            <div>Progress Width: <span id="progressWidth">Unknown</span></div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Instructions</h2>
+        <ol>
+            <li>Click "Load Songs Playlist" to load the songs</li>
+            <li>Click "Play First Track" to start playing</li>
+            <li>Test the volume slider and mute button</li>
+            <li>Try dragging the progress bar (both mouse and touch)</li>
+            <li>Test on mobile device or resize browser to mobile width</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h2>Expected Improvements</h2>
+        <ul>
+            <li>✅ All buttons now have descriptive tooltips</li>
+            <li>✅ Volume slider with default 70% volume</li>
+            <li>✅ Mute/unmute button with dynamic icons</li>
+            <li>✅ Mobile-friendly progress bar (8px height on mobile)</li>
+            <li>✅ Touch support for progress bar dragging</li>
+            <li>✅ Better touch targets for mobile devices</li>
+        </ul>
+    </div>
+
+    <script src="playback-bar.js"></script>
+    <script>
+        function testLoadSongs() {
+            const player = GlobalAudioPlayer.getInstance();
+            const songs = player.getSongsPlaylist();
+            player.setPlaylist(songs, 'Songs');
+            alert('Songs playlist loaded!');
+        }
+        
+        function testLoadInstrumentals() {
+            const player = GlobalAudioPlayer.getInstance();
+            const instrumentals = player.getInstrumentalsPlaylist();
+            player.setPlaylist(instrumentals, 'Instrumentals');
+            alert('Instrumentals playlist loaded!');
+        }
+        
+        function testPlayTrack() {
+            const player = GlobalAudioPlayer.getInstance();
+            if (player.tracks.length > 0) {
+                player.playTrack(0);
+                alert('Playing first track!');
+            } else {
+                alert('Please load a playlist first!');
+            }
+        }
+        
+        function testVolume() {
+            const player = GlobalAudioPlayer.getInstance();
+            alert(`Current volume: ${Math.round(player.volume * 100)}%\nMuted: ${player.isMuted}`);
+        }
+        
+        function testMobileProgress() {
+            alert('Resize your browser to mobile width or test on a mobile device to see the improved progress bar!');
+        }
+        
+        function testProgressBar() {
+            const player = GlobalAudioPlayer.getInstance();
+            const progressBar = document.getElementById('progressBarStatus');
+            const debugInfo = document.getElementById('debugInfo');
+            const audioDuration = document.getElementById('audioDuration');
+            const currentTime = document.getElementById('currentTime');
+            const progressWidth = document.getElementById('progressWidth');
+
+            if (player.audio) {
+                progressBar.textContent = 'Found';
+                audioDuration.textContent = `${player.audio.duration.toFixed(2)} seconds`;
+                currentTime.textContent = `${player.audio.currentTime.toFixed(2)} seconds`;
+                
+                const progressBarElement = document.getElementById('globalProgressBar');
+                if (progressBarElement) {
+                    progressWidth.textContent = progressBarElement.style.width;
+                    
+                    // Visual test - set progress bar to 50% to see if it's visible
+                    progressBarElement.style.width = '50%';
+                    progressBarElement.style.background = 'red';
+                    setTimeout(() => {
+                        progressBarElement.style.background = 'var(--deep-gold)';
+                    }, 2000);
+                } else {
+                    progressWidth.textContent = 'Element not found';
+                }
+                debugInfo.style.display = 'block';
+            } else {
+                progressBar.textContent = 'Not Found';
+                debugInfo.style.display = 'none';
+            }
+        }
+        
+        // Auto-load songs for testing
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                testLoadSongs();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

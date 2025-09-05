@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Allow all search engines to crawl the entire site
+# This is a memorial website that should be fully indexed
+
+# Sitemap location
+Sitemap: https://www.dennyvaughan.com/sitemap.xml
+
+# Crawl delay (optional - allows 1 request per second)
+Crawl-delay: 1

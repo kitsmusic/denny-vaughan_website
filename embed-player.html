@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Denny Vaughan - Music Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Crimson+Text:wght@400;600&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --burgundy: #8b2626;
+            --dark-burgundy: #5a1a1a;
+            --deep-gold: #d4af37;
+            --soft-gold: #f4e4bc;
+            --cream: #faf8f0;
+            --charcoal: #2c2c2c;
+            --warm-white: #fefefe;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--soft-gold) 100%);
+            color: var(--charcoal);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .embed-header {
+            background: linear-gradient(135deg, var(--burgundy) 0%, var(--dark-burgundy) 100%);
+            color: var(--cream);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid var(--deep-gold);
+        }
+
+        .embed-header h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: var(--deep-gold);
+        }
+
+        .embed-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .embed-player-container {
+            flex: 1;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .track-selector {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--deep-gold);
+        }
+
+        .track-selector h3 {
+            color: var(--burgundy);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .track-type-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .track-type-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--deep-gold);
+            background: transparent;
+            color: var(--burgundy);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .track-type-btn.active {
+            background: var(--deep-gold);
+            color: var(--burgundy);
+        }
+
+        .track-type-btn:hover {
+            background: var(--deep-gold);
+            color: var(--burgundy);
+        }
+
+        .track-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .track-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .track-item:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .track-item.active {
+            background: rgba(212, 175, 55, 0.2);
+            border-left: 4px solid var(--deep-gold);
+        }
+
+        .track-number {
+            font-weight: bold;
+            color: var(--burgundy);
+            min-width: 30px;
+        }
+
+        .track-info {
+            flex: 1;
+        }
+
+        .track-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .track-duration {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .audio-player {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--deep-gold);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .player-cover {
+            width: 80px;
+            height: 80px;
+            background: var(--deep-gold);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .player-cover i {
+            font-size: 2rem;
+            color: var(--burgundy);
+        }
+
+        .player-details {
+            flex: 1;
+        }
+
+        .player-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--burgundy);
+        }
+
+        .player-artist {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .player-composer {
+            font-size: 0.9rem;
+            color: #888;
+            font-style: italic;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: var(--deep-gold);
+            color: var(--burgundy);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: var(--burgundy);
+            color: var(--cream);
+            transform: scale(1.1);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-container {
+            background: #ddd;
+            height: 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            background: var(--deep-gold);
+            height: 100%;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .credits-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid var(--deep-gold);
+        }
+
+        .credits-section h3 {
+            color: var(--burgundy);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .credits-content p {
+            margin: 8px 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .credits-content strong {
+            color: var(--burgundy);
+        }
+
+        .embed-footer {
+            background: var(--charcoal);
+            color: var(--cream);
+            padding: 15px;
+            text-align: center;
+            font-size: 0.8rem;
+            margin-top: auto;
+        }
+
+        .embed-footer a {
+            color: var(--deep-gold);
+            text-decoration: none;
+        }
+
+        .embed-footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .embed-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .track-type-buttons {
+                flex-direction: column;
+            }
+            
+            .player-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .player-controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="embed-header">
+        <h1>Denny Vaughan</h1>
+        <p>A Musical Legacy 1921-1972</p>
+    </div>
+
+    <div class="embed-player-container">
+        <div class="track-selector">
+            <h3>Select Music</h3>
+            <div class="track-type-buttons">
+                <button class="track-type-btn active" onclick="switchPlaylist('songs')">Songs</button>
+                <button class="track-type-btn" onclick="switchPlaylist('instrumentals')">Instrumentals</button>
+            </div>
+            <div class="track-list" id="trackList">
+                <!-- Track list will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="audio-player">
+            <div class="player-info">
+                <div class="player-cover">
+                    <i class="fas fa-music"></i>
+                </div>
+                <div class="player-details">
+                    <div class="player-title" id="playerTitle">Select a track to play</div>
+                    <div class="player-artist">Denny Vaughan</div>
+                    <div class="player-composer" id="playerComposer"></div>
+                </div>
+            </div>
+            
+            <div class="player-controls">
+                <button class="control-btn" id="prevBtn" onclick="playPrevious()" disabled>
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <button class="control-btn" id="playPauseBtn" onclick="togglePlayPause()">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="control-btn" id="nextBtn" onclick="playNext()" disabled>
+                    <i class="fas fa-step-forward"></i>
+                </button>
+            </div>
+            
+            <div class="progress-container" onclick="seekToPosition(event)">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="time-display">
+                <span id="currentTime">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+
+        <div class="credits-section">
+            <h3>Credits</h3>
+            <div class="credits-content">
+                <p><strong>Performed by:</strong> Denny Vaughan</p>
+                <p><strong>Source:</strong> Denny Vaughan Collection</p>
+                <p><strong>Website:</strong> <a href="https://dennyvaughan.com" target="_blank">dennyvaughan.com</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="embed-footer">
+        <p>© 2024 Denny Vaughan Memorial. All rights reserved. | <a href="https://www.dennyvaughan.com" target="_blank">www.dennyvaughan.com</a></p>
+        <p>Contact: <a href="mailto:denny.vaughan@gmail.com">denny.vaughan@gmail.com</a></p>
+    </div>
+
+    <script>
+        // Audio player functionality
+        const audio = new Audio();
+        let currentTrackIndex = -1;
+        let currentPlaylist = 'songs';
+        let isPlaying = false;
+        let tracks = [];
+
+        // Playlists
+        const songsPlaylist = [
+            { title: "As Long As I Live", filename: "Denny Vaughan - Songs/As Long As I Live.mp3", composer: "Charles Tobias (L) & Max Steiner (M)", duration: "3:00" },
+            { title: "Autumn Leaves", filename: "Denny Vaughan - Songs/Autumn Leaves.mp3", composer: "Joseph Kosma", duration: "3:15" },
+            { title: "Begin the Beguine", filename: "Denny Vaughan - Songs/Begin the Beguine.mp3", composer: "Cole Porter", duration: "3:22" },
+            { title: "Blue Moon", filename: "Denny Vaughan - Songs/Blue Moon.mp3", composer: "Richard Rodgers & Lorenz Hart", duration: "2:58" },
+            { title: "Cynthia's in Love", filename: "Denny Vaughan - Songs/Cynthia's in Love.mp3", composer: "Earl White/Billy Gish/Jack Owens", duration: "3:22" },
+            { title: "How Deep is the Ocean", filename: "Denny Vaughan - Songs/How Deep is the Ocean.mp3", composer: "Irving Berlin", duration: "3:08" },
+            { title: "How High the Moon", filename: "Denny Vaughan - Songs/How High the Moon.mp3", composer: "Morgan Lewis", duration: "3:12" },
+            { title: "I Never Loved Anyone", filename: "Denny Vaughan - Songs/I Never Loved Anyone.mp3", composer: "Harry Warren", duration: "3:05" },
+            { title: "I Promise You", filename: "Denny Vaughan - Songs/I Promise You.mp3", composer: "Unknown", duration: "3:18" },
+            { title: "Its Magic", filename: "Denny Vaughan - Songs/Its Magic.mp3", composer: "Jule Styne & Sammy Cahn", duration: "3:14" },
+            { title: "Night and Day", filename: "Denny Vaughan - Songs/Night and Day.mp3", composer: "Cole Porter", duration: "3:20" },
+            { title: "Prisoner of Love", filename: "Denny Vaughan - Songs/Prisoner of Love.mp3", composer: "Russ Columbo & Clarence Gaskill", duration: "3:12" },
+            { title: "September in the Rain", filename: "Denny Vaughan - Songs/September in the Rain.mp3", composer: "Harry Warren", duration: "3:16" },
+            { title: "The Crystal Gazer", filename: "Denny Vaughan - Songs/The Crystal Gazer.mp3", composer: "Unknown", duration: "3:10" },
+            { title: "The Moon Has Turned to Silver", filename: "Denny Vaughan - Songs/The Moon Has Turned to Silver.mp3", composer: "Unknown", duration: "3:08" },
+            { title: "The Old Lamplighter", filename: "Denny Vaughan - Songs/The Old Lamplighter.mp3", composer: "Charles Tobias & Nat Simon", duration: "3:24" },
+            { title: "They Say Falling in Love", filename: "Denny Vaughan - Songs/They Say Falling in Love.mp3", composer: "Unknown", duration: "3:15" },
+            { title: "To Bed Early", filename: "Denny Vaughan - Songs/To Bed Early.mp3", composer: "Eaton/McGrane", duration: "3:10" },
+            { title: "Walk Hand in Hand", filename: "Denny Vaughan - Songs/Walk Hand in Hand.mp3", composer: "Johnny Cowell", duration: "3:18" },
+            { title: "You and the Night and the Music", filename: "Denny Vaughan - Songs/You and the Night and the Music.mp3", composer: "Arthur Schwartz & Howard Dietz", duration: "3:12" }
+        ];
+
+        const instrumentalsPlaylist = [
+            { title: "An Affair to Remember", filename: "Denny Vaughan - Instrumentals/An Affair to Remember.mp3", composer: "Harry Warren", duration: "3:25" },
+            { title: "Between the Devil and the Deep Blue Sea", filename: "Denny Vaughan - Instrumentals/Between the Devil and the Deep Blue Sea.mp3", composer: "Harold Arlen & Ted Koehler", duration: "3:15" },
+            { title: "Dawn to Dusk", filename: "Denny Vaughan - Instrumentals/Dawn to Dusk.mp3", composer: "Unknown", duration: "3:30" },
+            { title: "Embraceable You", filename: "Denny Vaughan - Instrumentals/Embraceable You.mp3", composer: "George & Ira Gershwin", duration: "2:38" },
+            { title: "Is It Too Late", filename: "Denny Vaughan - Instrumentals/Is It Too Late.mp3", composer: "Unknown", duration: "3:55" },
+            { title: "Lonely Evening Time Instrumental", filename: "Denny Vaughan - Instrumentals/Lonely Evening Time Instrumental.mp3", composer: "Unknown", duration: "3:20" },
+            { title: "Lonely Seashore", filename: "Denny Vaughan - Instrumentals/Lonely Seashore.mp3", composer: "Unknown", duration: "3:12" },
+            { title: "Love Minus One Concerto Finale", filename: "Denny Vaughan - Instrumentals/Love Minus One Concerto Finale.mp3", composer: "Unknown", duration: "4:15" },
+            { title: "Lover", filename: "Denny Vaughan - Instrumentals/Lover.mp3", composer: "Richard Rodgers & Lorenz Hart", duration: "5:11" },
+            { title: "Moonglow", filename: "Denny Vaughan - Instrumentals/Moonglow.mp3", composer: "Will Hudson, Irving Mills & Eddie DeLange", duration: "2:17" },
+            { title: "Moonlight and Roses", filename: "Denny Vaughan - Instrumentals/Moonlight and Roses.mp3", composer: "Lemare/Black/Moret", duration: "2:33" },
+            { title: "Rhapsody to a Lost Love", filename: "Denny Vaughan - Instrumentals/Rhapsody to a Lost Love.mp3", composer: "Unknown", duration: "3:45" },
+            { title: "Rose Room", filename: "Denny Vaughan - Instrumentals/Rose Room.mp3", composer: "Hickman/Williams", duration: "2:52" },
+            { title: "The Girl Next Door", filename: "Denny Vaughan - Instrumentals/The Girl Next Door.mp3", composer: "Unknown", duration: "3:08" },
+            { title: "The Moon was Yellow", filename: "Denny Vaughan - Instrumentals/The Moon was Yellow.mp3", composer: "Fred Alhlert/Edgar Leslie", duration: "2:22" },
+            { title: "Yonge Street Boogie", filename: "Denny Vaughan - Instrumentals/Yonge Street Boogie.mp3", composer: "Denny Vaughan", duration: "2:01" }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            tracks = songsPlaylist;
+            renderTrackList();
+            setupAudioEventListeners();
+            
+            // Check for URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const trackParam = urlParams.get('track');
+            const typeParam = urlParams.get('type');
+            
+            if (trackParam && typeParam) {
+                if (typeParam === 'instrumental') {
+                    switchPlaylist('instrumentals');
+                }
+                
+                // Find and play the track
+                const trackIndex = tracks.findIndex(track => track.title === trackParam);
+                if (trackIndex !== -1) {
+                    setTimeout(() => {
+                        playTrack(trackIndex);
+                    }, 500);
+                }
+            }
+        });
+
+        function switchPlaylist(type) {
+            currentPlaylist = type;
+            tracks = type === 'songs' ? songsPlaylist : instrumentalsPlaylist;
+            currentTrackIndex = -1;
+            isPlaying = false;
+            
+            // Update button states
+            document.querySelectorAll('.track-type-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderTrackList();
+            updatePlayerDisplay();
+            audio.pause();
+        }
+
+        function renderTrackList() {
+            const trackList = document.getElementById('trackList');
+            trackList.innerHTML = tracks.map((track, index) => `
+                <div class="track-item ${index === currentTrackIndex ? 'active' : ''}" onclick="playTrack(${index})">
+                    <div class="track-number">${index + 1}</div>
+                    <div class="track-info">
+                        <div class="track-title">${track.title}</div>
+                        <div class="track-duration">${track.duration}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function playTrack(index) {
+            if (index < 0 || index >= tracks.length) return;
+            
+            currentTrackIndex = index;
+            const track = tracks[index];
+            
+            audio.src = track.filename;
+            audio.load();
+            
+            isPlaying = true;
+            audio.play().catch(e => {
+                console.log('Play prevented, user needs to interact first');
+            });
+            
+            updatePlayerDisplay();
+            renderTrackList();
+        }
+
+        function togglePlayPause() {
+            if (currentTrackIndex < 0) return;
+            
+            if (isPlaying && !audio.paused) {
+                audio.pause();
+                isPlaying = false;
+            } else {
+                audio.play().catch(e => {
+                    console.log('Play prevented, user needs to interact first');
+                });
+                isPlaying = true;
+            }
+            
+            updatePlayerDisplay();
+        }
+
+        function playPrevious() {
+            if (tracks.length === 0) return;
+            const newIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+            playTrack(newIndex);
+        }
+
+        function playNext() {
+            if (tracks.length === 0) return;
+            const newIndex = (currentTrackIndex + 1) % tracks.length;
+            playTrack(newIndex);
+        }
+
+        function seekToPosition(event) {
+            if (!audio.duration) return;
+            
+            const rect = event.currentTarget.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const width = rect.width;
+            const seekTime = (clickX / width) * audio.duration;
+            
+            audio.currentTime = seekTime;
+        }
+
+        function setupAudioEventListeners() {
+            audio.addEventListener('ended', playNext);
+            audio.addEventListener('timeupdate', updateProgress);
+            audio.addEventListener('loadedmetadata', updateDuration);
+            audio.addEventListener('play', () => {
+                isPlaying = true;
+                updatePlayerDisplay();
+            });
+            audio.addEventListener('pause', () => {
+                isPlaying = false;
+                updatePlayerDisplay();
+            });
+        }
+
+        function updatePlayerDisplay() {
+            const title = document.getElementById('playerTitle');
+            const composer = document.getElementById('playerComposer');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (currentTrackIndex >= 0 && currentTrackIndex < tracks.length) {
+                const track = tracks[currentTrackIndex];
+                
+                title.textContent = track.title;
+                composer.textContent = `Composed by ${track.composer}`;
+                
+                if (playPauseBtn) {
+                    if (isPlaying && !audio.paused) {
+                        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    } else {
+                        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    }
+                }
+                
+                prevBtn.disabled = false;
+                nextBtn.disabled = false;
+            } else {
+                title.textContent = 'Select a track to play';
+                composer.textContent = '';
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+            }
+        }
+
+        function updateProgress() {
+            const progressBar = document.getElementById('progressBar');
+            const currentTimeSpan = document.getElementById('currentTime');
+            
+            if (audio.duration) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = progress + '%';
+                
+                currentTimeSpan.textContent = formatTime(audio.currentTime);
+            }
+        }
+
+        function updateDuration() {
+            const durationSpan = document.getElementById('duration');
+            durationSpan.textContent = formatTime(audio.duration);
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>
