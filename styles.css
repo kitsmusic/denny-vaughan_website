@@ -1154,6 +1154,10 @@ p {
     text-align: center;
     position: relative;
     overflow: hidden;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .header-background {
