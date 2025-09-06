@@ -842,7 +842,15 @@
         document.addEventListener('DOMContentLoaded', init);
         // Re-initialize when PJAX swaps content
         document.addEventListener('pjax:load', () => {
-            if (document.querySelector('.instrumentals-page')) init();
+            if (document.querySelector('.instrumentals-page')) {
+                init();
+                // Update button states after content is populated
+                setTimeout(() => {
+                    if (window.globalAudioPlayer) {
+                        window.globalAudioPlayer.updateTrackButtonStates();
+                    }
+                }, 150);
+            }
         });
 
 

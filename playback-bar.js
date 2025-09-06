@@ -276,12 +276,14 @@ class GlobalAudioPlayer {
             this.isPlaying = true;
             try{console.log('[Audio] play', { src: this.audio.src, t: this.audio.currentTime });}catch(_){ }
             this.updatePlayerDisplay();
+            this.updateTrackButtonStates();
             this.saveStateToStorage();
         });
         this.audio.addEventListener('pause', () => {
             this.isPlaying = false;
             try{console.log('[Audio] pause', { src: this.audio.src, t: this.audio.currentTime });}catch(_){ }
             this.updatePlayerDisplay();
+            this.updateTrackButtonStates();
             this.saveStateToStorage();
         });
 
@@ -312,6 +314,11 @@ class GlobalAudioPlayer {
             this.saveStateToStorage();
             try{console.log('[PJAX] load: restoring audio state (non-destructive)', { playing: this.isPlaying, paused: this.audio.paused, t: this.audio.currentTime, src: this.audio.src });}catch(_){ }
             this.restoreAudioState();
+            
+            // Update button states after a short delay to ensure DOM elements are ready
+            setTimeout(() => {
+                this.updateTrackButtonStates();
+            }, 100);
 
             // If we intended to keep playing, try to continue without reloading src
             if (this.isPlaying && this.currentTrackIndex >= 0 && this.audio.paused) {
@@ -320,6 +327,7 @@ class GlobalAudioPlayer {
                     const reminder = document.getElementById('globalPlayerReminder');
                     if (reminder) reminder.style.display = 'none';
                     this.updatePlayerDisplay();
+                    this.updateTrackButtonStates();
                 }).catch((err) => {
                     try{console.warn('[PJAX] resume: immediate blocked', err && (err.name+': '+err.message));}catch(_){ }
                     // Fallback: muted autoplay (allowed by most browsers), then unmute
@@ -330,6 +338,7 @@ class GlobalAudioPlayer {
                         setTimeout(() => {
                             this.audio.muted = prevMuted;
                             this.updatePlayerDisplay();
+                            this.updateTrackButtonStates();
                         }, 100);
                         const reminder = document.getElementById('globalPlayerReminder');
                         if (reminder) reminder.style.display = 'none';
@@ -343,6 +352,7 @@ class GlobalAudioPlayer {
                             const r = document.getElementById('globalPlayerReminder');
                             if (r) r.style.display = 'none';
                             this.updatePlayerDisplay();
+                            this.updateTrackButtonStates();
                         };
                         document.addEventListener('click', resume, { once: true });
                         document.addEventListener('keydown', resume, { once: true });
@@ -360,6 +370,7 @@ class GlobalAudioPlayer {
                 // Hide reminder after user interaction
                 const reminder = document.getElementById('globalPlayerReminder');
                 if (reminder) reminder.style.display = 'none';
+                this.updateTrackButtonStates();
             }
         }, { once: true });
         
@@ -372,6 +383,7 @@ class GlobalAudioPlayer {
                 // Hide reminder after user interaction
                 const reminder = document.getElementById('globalPlayerReminder');
                 if (reminder) reminder.style.display = 'none';
+                this.updateTrackButtonStates();
             }
         }, { once: true });
     }
@@ -574,6 +586,7 @@ class GlobalAudioPlayer {
                     this.showFloatingButton();
                 }
                 this.updatePlayerDisplay();
+                this.updateTrackButtonStates();
             }
         }
     }
@@ -751,6 +764,7 @@ class GlobalAudioPlayer {
         
         this.showPlayer();
         this.updatePlayerDisplay();
+        this.updateTrackButtonStates();
         this.saveStateToStorage(true);
         
         // Add to played tracks for random mode
@@ -779,6 +793,7 @@ class GlobalAudioPlayer {
         }
         
         this.updatePlayerDisplay();
+        this.updateTrackButtonStates();
         this.saveStateToStorage();
     }
 
@@ -1084,6 +1099,41 @@ class GlobalAudioPlayer {
                 }, 3000);
             }
         }
+    }
+
+    /**
+     * Update Track Button States
+     * Updates the play/pause button states on songs and instrumentals pages
+     */
+    updateTrackButtonStates() {
+        // Update all track icons on the current page
+        const trackCards = document.querySelectorAll('.track-card, .track-item');
+        
+        trackCards.forEach((card, index) => {
+            const trackIcon = card.querySelector('.track-icon i');
+            const cardTrackIndex = parseInt(card.dataset.trackIndex);
+            const cardPlaylist = card.dataset.playlist;
+            
+            if (trackIcon) {
+                // Check if this is the currently playing track
+                const isCurrentTrack = (
+                    this.currentTrackIndex === cardTrackIndex && 
+                    this.currentPlaylist === cardPlaylist &&
+                    this.isPlaying && 
+                    !this.audio.paused
+                );
+                
+                if (isCurrentTrack) {
+                    // Show pause button for currently playing track
+                    trackIcon.className = 'fas fa-pause';
+                    card.classList.add('playing');
+                } else {
+                    // Show play button for all other tracks
+                    trackIcon.className = 'fas fa-play';
+                    card.classList.remove('playing');
+                }
+            }
+        });
     }
 
     /**

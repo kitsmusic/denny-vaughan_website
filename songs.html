@@ -1130,6 +1130,12 @@
                 populateTrackList();
                 populateTracksGrid();
                 setupEventListeners();
+                // Update button states after content is populated
+                setTimeout(() => {
+                    if (window.globalAudioPlayer) {
+                        window.globalAudioPlayer.updateTrackButtonStates();
+                    }
+                }, 150);
             }
         });
 
