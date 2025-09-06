@@ -75,7 +75,7 @@ class GlobalAudioPlayer {
                 <div id="globalAudioPlayer" class="global-audio-player">
                     <button id="globalPlayerClose" class="global-player-close">
                         <i class="fas fa-times"></i>
-                    </button>
+                                    </button>
                     <div class="global-player-content">
                         <div class="global-player-info">
                             <div class="global-player-cover">
