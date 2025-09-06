@@ -2174,6 +2174,102 @@ p {
     }
 }
 
+/* Elegant Mobile Text Blurb Design */
+@media (max-width: 768px) {
+    .page-subtitle {
+        background: transparent !important;
+        position: relative;
+        padding: 0 !important;
+        height: auto !important;
+        min-height: auto !important;
+        border-radius: 0 !important;
+        margin: 20px 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        border: none !important;
+        box-shadow: none !important;
+        
+        /* Beautiful typography */
+        font-size: 1.1rem !important;
+        line-height: 1.7 !important;
+        color: var(--cream) !important;
+        text-align: center !important;
+        font-weight: 300;
+        font-style: italic;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        
+        /* Add elegant spacing */
+        padding: 15px 30px !important;
+    }
+    
+    /* Elegant decorative border */
+    .page-subtitle::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(212, 175, 55, 0.6) 20%, 
+            rgba(212, 175, 55, 0.8) 50%,
+            rgba(212, 175, 55, 0.6) 80%, 
+            transparent);
+    }
+    
+    .page-subtitle::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(212, 175, 55, 0.6) 20%, 
+            rgba(212, 175, 55, 0.8) 50%,
+            rgba(212, 175, 55, 0.6) 80%, 
+            transparent);
+    }
+    
+    /* Compress header spacing */
+    .page-header {
+        margin-bottom: 15px !important;
+        padding-top: 80px !important;
+    }
+    
+    .page-title {
+        margin-bottom: 8px !important;
+        font-size: 2.8rem !important;
+    }
+    
+    /* B-sides section styling */
+    .bsides-section .page-subtitle {
+        margin-top: 15px !important;
+    }
+}
+
+/* Smaller mobile screens */
+@media (max-width: 480px) {
+    .page-subtitle {
+        font-size: 1rem !important;
+        padding: 18px 25px !important;
+        line-height: 1.6 !important;
+    }
+    
+    .page-header {
+        padding-top: 70px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .page-title {
+        font-size: 2.3rem !important;
+        margin-bottom: 5px !important;
+    }
+}
+
 /* Floating Music Button */
 .floating-music-btn {
     position: fixed;
