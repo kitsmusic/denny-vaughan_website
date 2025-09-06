@@ -214,11 +214,32 @@ class GlobalAudioPlayer {
         const progressContainer = document.querySelector('.global-progress');
         
         if (progressContainer) {
-            progressContainer.addEventListener('click', (e) => this.seekToPosition(e));
-            progressContainer.addEventListener('mousedown', (e) => this.startDragging(e));
+            // Add a flag to prevent click events after touch interactions
+            let touchInteraction = false;
+            
+            progressContainer.addEventListener('click', (e) => {
+                // Prevent click if we just had a touch interaction
+                if (touchInteraction) {
+                    touchInteraction = false;
+                    return;
+                }
+                this.seekToPosition(e);
+            });
+            
+            progressContainer.addEventListener('mousedown', (e) => {
+                // Only handle mouse events if not a touch device interaction
+                if (e.pointerType !== 'touch') {
+                    this.startDragging(e);
+                }
+            });
             
             // Touch support for mobile
-            progressContainer.addEventListener('touchstart', (e) => this.startTouchDragging(e));
+            progressContainer.addEventListener('touchstart', (e) => {
+                touchInteraction = true;
+                this.startTouchDragging(e);
+                // Reset the flag after a short delay
+                setTimeout(() => { touchInteraction = false; }, 300);
+            }, { passive: false });
         }
 
         // Floating music button
@@ -411,31 +432,70 @@ class GlobalAudioPlayer {
         
         const progressContainer = e.currentTarget;
         let isDragging = true;
+        let hasMoved = false; // Track if user actually dragged
+        let lastUpdateTime = 0;
+        const updateThrottle = 16; // ~60fps updates
         
         const handleTouchMove = (e) => {
             if (!isDragging) return;
             e.preventDefault(); // Prevent scrolling during drag
+            e.stopPropagation(); // Prevent event bubbling
+            
+            hasMoved = true; // Mark that user has dragged
             
             const touch = e.touches[0];
+            if (!touch) return; // Safety check
+            
             const rect = progressContainer.getBoundingClientRect();
             const touchX = Math.max(0, Math.min(touch.clientX - rect.left, rect.width));
             const width = rect.width;
             const seekTime = (touchX / width) * this.audio.duration;
             
-            this.audio.currentTime = seekTime;
+            // Update progress bar visually immediately (no throttling for visual feedback)
+            const progressBar = document.getElementById('globalProgressBar');
+            if (progressBar) {
+                progressBar.style.width = `${(touchX / width) * 100}%`;
+            }
+            
+            // Throttle audio seeking for performance
+            const now = Date.now();
+            if (now - lastUpdateTime >= updateThrottle) {
+                lastUpdateTime = now;
+                this.audio.currentTime = seekTime;
+            }
         };
         
-        const handleTouchEnd = () => {
+        const handleTouchEnd = (e) => {
             isDragging = false;
             document.removeEventListener('touchmove', handleTouchMove, { passive: false });
             document.removeEventListener('touchend', handleTouchEnd);
+            document.removeEventListener('touchcancel', handleTouchCancel);
+            
+            // If user didn't drag, treat as a tap to seek
+            if (!hasMoved && e.changedTouches && e.changedTouches[0]) {
+                const touch = e.changedTouches[0];
+                const rect = progressContainer.getBoundingClientRect();
+                const touchX = Math.max(0, Math.min(touch.clientX - rect.left, rect.width));
+                const width = rect.width;
+                const seekTime = (touchX / width) * this.audio.duration;
+                this.audio.currentTime = seekTime;
+            }
+        };
+        
+        const handleTouchCancel = () => {
+            isDragging = false;
+            document.removeEventListener('touchmove', handleTouchMove, { passive: false });
+            document.removeEventListener('touchend', handleTouchEnd);
+            document.removeEventListener('touchcancel', handleTouchCancel);
         };
         
         document.addEventListener('touchmove', handleTouchMove, { passive: false });
         document.addEventListener('touchend', handleTouchEnd);
+        document.addEventListener('touchcancel', handleTouchCancel);
         
-        // Prevent default touch behavior
+        // Prevent default touch behavior and event bubbling
         e.preventDefault();
+        e.stopPropagation();
     }
 
     /**

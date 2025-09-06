@@ -1744,7 +1744,7 @@ p {
     z-index: 1;
     /* Ensure proper dimensions */
     min-height: 4px;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .global-progress-bar {
@@ -1770,14 +1770,14 @@ p {
     height: 8px;
     background: var(--deep-gold);
     border-radius: 50%;
-    border: 1px solid var(--cream);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--cream);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     opacity: 0;
     transition: opacity 0.2s ease;
     /* Ensure cursor is always visible on touch devices */
     pointer-events: none;
     /* Ensure cursor has proper spacing from container edges */
-    z-index: 2;
+    z-index: 10;
 }
 
 .global-progress:hover .global-progress-bar::after {
@@ -1792,14 +1792,17 @@ p {
     
     /* Make progress bar more touch-friendly on mobile */
     .global-progress {
-        height: 6px;
+        height: 8px;
     }
     
     .global-progress-bar::after {
-        width: 12px;
-        height: 12px;
-        right: -6px;
-        top: -3px;
+        width: 20px;
+        height: 20px;
+        right: -10px;
+        top: -6px;
+        z-index: 15;
+        border: 2px solid var(--cream);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
     }
 }
 
@@ -2002,12 +2005,13 @@ p {
     
     /* Make progress cursor more visible on mobile */
     .global-progress-bar::after {
-        width: 10px;
-        height: 10px;
-        right: -5px;
-        top: -2px;
-        border-width: 1px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        width: 18px;
+        height: 18px;
+        right: -9px;
+        top: -5px;
+        z-index: 15;
+        border: 2px solid var(--cream);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
     }
 }
 
