@@ -1747,6 +1747,7 @@ p {
     overflow: visible;
     order: 1;
     margin-top: 12px;
+    margin-bottom: 8px;
 }
 
 .global-progress-bar {
@@ -1813,6 +1814,9 @@ p {
 
 
 .global-player-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
     background: none;
     border: none;
     color: var(--cream);
@@ -1820,8 +1824,7 @@ p {
     font-size: 1.2rem;
     opacity: 0.7;
     transition: opacity 0.3s ease;
-    align-self: flex-end;
-    margin-bottom: -10px;
+    z-index: 10;
 }
 
 .global-player-close:hover {
@@ -2013,11 +2016,13 @@ p {
         height: 6px;
         order: 4;
         margin-top: 10px;
+        margin-bottom: 6px;
     }
     
     .global-player-close {
+        top: 6px;
+        right: 10px;
         font-size: 1.1rem;
-        margin-bottom: -5px;
     }
 
     /* Mobile volume control adjustments */
@@ -2132,6 +2137,7 @@ p {
     
     .global-progress {
         margin-top: 8px;
+        margin-bottom: 4px;
     }
 }
 
