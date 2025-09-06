@@ -522,18 +522,7 @@ class GlobalAudioPlayer {
      * Allows users to click on any track to play it
      */
     addTrackClickHandlers() {
-        document.addEventListener('click', (e) => {
-            const trackItem = e.target.closest('.track-item, .track-card, .song-card, .instrumental-card');
-            if (trackItem) {
-                e.preventDefault();
-                const trackIndex = parseInt(trackItem.dataset.trackIndex);
-                const playlistName = trackItem.dataset.playlist;
-                
-                if (!isNaN(trackIndex) && playlistName) {
-                    this.playTrackFromPlaylist(trackIndex, playlistName);
-                }
-            }
-        });
+        // Removed - tracks already have their own click handlers in HTML files
     }
 
     /**

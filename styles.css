@@ -2274,6 +2274,17 @@ p {
     transition: all 0.3s ease;
 }
 
+/* Playing state styles */
+.track-card.playing .track-icon,
+.track-item.playing .track-icon {
+    background: var(--burgundy);
+}
+
+.track-card.playing .track-icon i,
+.track-item.playing .track-icon i {
+    color: var(--deep-gold);
+}
+
 .track-card:hover .track-icon {
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(139, 38, 53, 0.4);
@@ -2284,8 +2295,12 @@ p {
 }
 
 .track-card:hover .track-icon i {
-    color: var(--deep-gold);
+    /* Only apply transform on hover, keep original colors */
     transform: scale(1.1);
+}
+
+.track-item.playing:hover {
+    color: var(--deep-gold);
 }
 
 /* Play button pulse animation on hover */
