@@ -108,12 +108,12 @@ class GlobalAudioPlayer {
                                 </button>
                             </div>
                             <div class="global-volume-control">
-                                <button id="globalMuteBtn" class="global-volume-btn" title="Mute/Unmute">
+                                <button id="globalMuteBtn" class="global-volume-btn" title="Volume">
                                     <i class="fas fa-volume-up"></i>
                                 </button>
                                 <div class="global-volume-slider-container">
                                     <input type="range" id="globalVolumeSlider" class="global-volume-slider" 
-                                           min="0" max="100" value="70" title="Volume Control">
+                                           min="0" max="100" value="70" title="Volume Control" orient="vertical">
                                 </div>
                             </div>
                         </div>
@@ -204,8 +204,14 @@ class GlobalAudioPlayer {
         }
         
         if (muteBtn) {
-            muteBtn.addEventListener('click', () => {
-                this.toggleMute();
+            muteBtn.addEventListener('click', (e) => {
+                // On mobile, toggle volume slider visibility
+                if (window.innerWidth <= 768) {
+                    e.stopPropagation();
+                    this.toggleVolumeSlider();
+                } else {
+                    this.toggleMute();
+                }
             });
         }
 
@@ -1056,6 +1062,28 @@ class GlobalAudioPlayer {
      */
     updateDuration() {
         // Duration is handled by the progress bar
+    }
+
+    /**
+     * Toggle Volume Slider Visibility (Mobile)
+     * Shows/hides the vertical volume slider on mobile devices
+     */
+    toggleVolumeSlider() {
+        const sliderContainer = document.querySelector('.global-volume-slider-container');
+        if (sliderContainer) {
+            const isVisible = sliderContainer.classList.contains('show');
+            if (isVisible) {
+                sliderContainer.classList.remove('show');
+            } else {
+                sliderContainer.classList.add('show');
+                // Hide slider after 3 seconds of inactivity
+                setTimeout(() => {
+                    if (!sliderContainer.matches(':hover')) {
+                        sliderContainer.classList.remove('show');
+                    }
+                }, 3000);
+            }
+        }
     }
 
     /**
