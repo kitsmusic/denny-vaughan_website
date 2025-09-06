@@ -871,6 +871,29 @@
                         <div class="track-duration">${track.duration}</div>
                     </div>
                 `;
+                
+                // Add click event to play/pause track
+                trackItem.addEventListener('click', () => {
+                    if (window.globalAudioPlayer) {
+                        const isCurrentTrack = (
+                            window.globalAudioPlayer.currentTrackIndex === index &&
+                            window.globalAudioPlayer.currentPlaylist === 'Instrumentals'
+                        );
+                        
+                        if (isCurrentTrack && window.globalAudioPlayer.isPlaying && !window.globalAudioPlayer.audio.paused) {
+                            // If this track is currently playing, pause it
+                            window.globalAudioPlayer.pause();
+                        } else if (isCurrentTrack && !window.globalAudioPlayer.isPlaying) {
+                            // If this is the current track but paused, resume it
+                            window.globalAudioPlayer.resume();
+                        } else {
+                            // Otherwise, play this track from the beginning
+                            window.globalAudioPlayer.setPlaylist(tracks, 'Instrumentals');
+                            window.globalAudioPlayer.playTrack(index);
+                        }
+                    }
+                });
+                
                 trackList.appendChild(trackItem);
             });
         }
@@ -900,6 +923,29 @@
                         More Info
                     </button>
                 `;
+                
+                // Add click event to play/pause track
+                trackCard.addEventListener('click', () => {
+                    if (window.globalAudioPlayer) {
+                        const isCurrentTrack = (
+                            window.globalAudioPlayer.currentTrackIndex === index &&
+                            window.globalAudioPlayer.currentPlaylist === 'Instrumentals'
+                        );
+                        
+                        if (isCurrentTrack && window.globalAudioPlayer.isPlaying && !window.globalAudioPlayer.audio.paused) {
+                            // If this track is currently playing, pause it
+                            window.globalAudioPlayer.pause();
+                        } else if (isCurrentTrack && !window.globalAudioPlayer.isPlaying) {
+                            // If this is the current track but paused, resume it
+                            window.globalAudioPlayer.resume();
+                        } else {
+                            // Otherwise, play this track from the beginning
+                            window.globalAudioPlayer.setPlaylist(tracks, 'Instrumentals');
+                            window.globalAudioPlayer.playTrack(index);
+                        }
+                    }
+                });
+                
                 tracksGrid.appendChild(trackCard);
             });
         }

@@ -1159,11 +1159,25 @@
                     </div>
                 `;
                 
-                // Add click event to play track
+                // Add click event to play/pause track
                 trackItem.addEventListener('click', () => {
                     if (window.globalAudioPlayer) {
-                        window.globalAudioPlayer.setPlaylist(tracks, 'Songs');
-                        window.globalAudioPlayer.playTrack(index);
+                        const isCurrentTrack = (
+                            window.globalAudioPlayer.currentTrackIndex === index &&
+                            window.globalAudioPlayer.currentPlaylist === 'Songs'
+                        );
+                        
+                        if (isCurrentTrack && window.globalAudioPlayer.isPlaying && !window.globalAudioPlayer.audio.paused) {
+                            // If this track is currently playing, pause it
+                            window.globalAudioPlayer.pause();
+                        } else if (isCurrentTrack && !window.globalAudioPlayer.isPlaying) {
+                            // If this is the current track but paused, resume it
+                            window.globalAudioPlayer.resume();
+                        } else {
+                            // Otherwise, play this track from the beginning
+                            window.globalAudioPlayer.setPlaylist(tracks, 'Songs');
+                            window.globalAudioPlayer.playTrack(index);
+                        }
                     }
                 });
                 
@@ -1185,11 +1199,25 @@
                     </div>
                 `;
                 
-                // Add click event to play track
+                // Add click event to play/pause track
                 trackItem.addEventListener('click', () => {
                     if (window.globalAudioPlayer) {
-                        window.globalAudioPlayer.setPlaylist(bsides, 'B-sides');
-                        window.globalAudioPlayer.playTrack(index);
+                        const isCurrentTrack = (
+                            window.globalAudioPlayer.currentTrackIndex === index &&
+                            window.globalAudioPlayer.currentPlaylist === 'B-sides'
+                        );
+                        
+                        if (isCurrentTrack && window.globalAudioPlayer.isPlaying && !window.globalAudioPlayer.audio.paused) {
+                            // If this track is currently playing, pause it
+                            window.globalAudioPlayer.pause();
+                        } else if (isCurrentTrack && !window.globalAudioPlayer.isPlaying) {
+                            // If this is the current track but paused, resume it
+                            window.globalAudioPlayer.resume();
+                        } else {
+                            // Otherwise, play this track from the beginning
+                            window.globalAudioPlayer.setPlaylist(bsides, 'B-sides');
+                            window.globalAudioPlayer.playTrack(index);
+                        }
                     }
                 });
                 
@@ -1226,11 +1254,25 @@
                     </button>
                 `;
                 
-                // Add click event to play track
+                // Add click event to play/pause track
                 trackCard.addEventListener('click', () => {
                     if (window.globalAudioPlayer) {
-                        window.globalAudioPlayer.setPlaylist(tracks, 'Songs');
-                        window.globalAudioPlayer.playTrack(index);
+                        const isCurrentTrack = (
+                            window.globalAudioPlayer.currentTrackIndex === index &&
+                            window.globalAudioPlayer.currentPlaylist === 'Songs'
+                        );
+                        
+                        if (isCurrentTrack && window.globalAudioPlayer.isPlaying && !window.globalAudioPlayer.audio.paused) {
+                            // If this track is currently playing, pause it
+                            window.globalAudioPlayer.pause();
+                        } else if (isCurrentTrack && !window.globalAudioPlayer.isPlaying) {
+                            // If this is the current track but paused, resume it
+                            window.globalAudioPlayer.resume();
+                        } else {
+                            // Otherwise, play this track from the beginning
+                            window.globalAudioPlayer.setPlaylist(tracks, 'Songs');
+                            window.globalAudioPlayer.playTrack(index);
+                        }
                     }
                 });
                 
@@ -1261,11 +1303,25 @@
                     </button>
                 `;
                 
-                // Add click event to play track
+                // Add click event to play/pause track
                 trackCard.addEventListener('click', () => {
                     if (window.globalAudioPlayer) {
-                        window.globalAudioPlayer.setPlaylist(bsides, 'B-sides');
-                        window.globalAudioPlayer.playTrack(index);
+                        const isCurrentTrack = (
+                            window.globalAudioPlayer.currentTrackIndex === index &&
+                            window.globalAudioPlayer.currentPlaylist === 'B-sides'
+                        );
+                        
+                        if (isCurrentTrack && window.globalAudioPlayer.isPlaying && !window.globalAudioPlayer.audio.paused) {
+                            // If this track is currently playing, pause it
+                            window.globalAudioPlayer.pause();
+                        } else if (isCurrentTrack && !window.globalAudioPlayer.isPlaying) {
+                            // If this is the current track but paused, resume it
+                            window.globalAudioPlayer.resume();
+                        } else {
+                            // Otherwise, play this track from the beginning
+                            window.globalAudioPlayer.setPlaylist(bsides, 'B-sides');
+                            window.globalAudioPlayer.playTrack(index);
+                        }
                     }
                 });
                 

@@ -763,6 +763,38 @@ class GlobalAudioPlayer {
     }
 
     /**
+     * Pause Audio
+     * Pauses the currently playing audio
+     */
+    pause() {
+        if (this.currentTrackIndex < 0) return;
+        
+        this.audio.pause();
+        this.isPlaying = false;
+        
+        this.updatePlayerDisplay();
+        this.updateTrackButtonStates();
+        this.saveStateToStorage();
+    }
+
+    /**
+     * Resume Audio
+     * Resumes the currently paused audio from its current position
+     */
+    resume() {
+        if (this.currentTrackIndex < 0) return;
+        
+        this.audio.play().catch(e => {
+            console.log('Play prevented, user needs to interact first');
+        });
+        this.isPlaying = true;
+        
+        this.updatePlayerDisplay();
+        this.updateTrackButtonStates();
+        this.saveStateToStorage();
+    }
+
+    /**
      * Toggle Play/Pause
      * Switches between play and pause states
      */
@@ -771,19 +803,11 @@ class GlobalAudioPlayer {
         
         if (this.isPlaying && !this.audio.paused) {
             // Currently playing, pause it
-            this.audio.pause();
-            this.isPlaying = false;
+            this.pause();
         } else {
-            // Currently paused, play it
-            this.audio.play().catch(e => {
-                console.log('Play prevented, user needs to interact first');
-            });
-            this.isPlaying = true;
+            // Currently paused, resume it
+            this.resume();
         }
-        
-        this.updatePlayerDisplay();
-        this.updateTrackButtonStates();
-        this.saveStateToStorage();
     }
 
     /**
