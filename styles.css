@@ -1765,7 +1765,8 @@ p {
     content: '';
     position: absolute;
     right: -4px;
-    top: -2px;
+    top: 50%;
+    transform: translateY(-50%);
     width: 8px;
     height: 8px;
     background: var(--deep-gold);
@@ -1799,7 +1800,8 @@ p {
         width: 20px;
         height: 20px;
         right: -10px;
-        top: -6px;
+        top: 50%;
+        transform: translateY(-50%);
         z-index: 15;
         border: 2px solid var(--cream);
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
@@ -2008,7 +2010,8 @@ p {
         width: 18px;
         height: 18px;
         right: -9px;
-        top: -5px;
+        top: 50%;
+        transform: translateY(-50%);
         z-index: 15;
         border: 2px solid var(--cream);
         box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
