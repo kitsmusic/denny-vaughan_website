@@ -657,7 +657,7 @@ class GlobalAudioPlayer {
             { title: "Prisoner of Love", filename: "Denny Vaughan - Songs/Prisoner of Love.mp3" },
             { title: "To Bed Early", filename: "Denny Vaughan - Songs/To Bed Early.mp3" },
             { title: "As Long As I Live", filename: "Denny Vaughan - Songs/As Long As I Live.mp3" },
-            { title: "Cynthia's in Love", filename: "Denny Vaughan - Songs/Cynthia's in Love.mp3" },
+            { title: "Cynthia's in Love", filename: "Denny Vaughan - Songs/Cynthia_s in Love.mp3" },
             { title: "The Old Lamplighter", filename: "Denny Vaughan - Songs/The Old Lamplighter.mp3" },
             { title: "The Crystal Gazer", filename: "Denny Vaughan - Songs/The Crystal Gazer.mp3" },
             { title: "I Never Loved Anyone", filename: "Denny Vaughan - Songs/I Never Loved Anyone.mp3" },
