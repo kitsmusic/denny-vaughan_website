@@ -1327,6 +1327,27 @@ p {
     transform: translateY(0);
 }
 
+/* Desktop padding improvements for text content */
+@media (min-width: 769px) {
+    .main-content {
+        padding: 100px 60px 40px !important;
+    }
+    
+    .page-subtitle {
+        padding: 30px 40px !important;
+        margin: 0 auto;
+        max-width: 900px;
+    }
+    
+    .bio-text-full {
+        padding: 0 40px;
+    }
+    
+    .bio-text-full p {
+        margin-bottom: var(--space-xl);
+    }
+}
+
 /* Responsive Design for New Pages */
 @media (max-width: 768px) {
     .page-header h1 {
