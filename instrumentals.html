@@ -293,7 +293,7 @@
             color: var(--charcoal);
             max-width: 800px;
             width: 100%;
-            height: 120px;
+            min-height: 120px;
             margin: 0 auto;
             line-height: 1.8;
             background: var(--warm-white);
@@ -303,7 +303,6 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            overflow: hidden;
         }
 
         .tracks-grid {
@@ -842,7 +841,15 @@
         document.addEventListener('DOMContentLoaded', init);
         // Re-initialize when PJAX swaps content
         document.addEventListener('pjax:load', () => {
-            if (document.querySelector('.instrumentals-page')) init();
+            if (document.querySelector('.instrumentals-page')) {
+                init();
+                // Update button states after content is populated
+                setTimeout(() => {
+                    if (window.globalAudioPlayer) {
+                        window.globalAudioPlayer.updateTrackButtonStates();
+                    }
+                }, 150);
+            }
         });
 
 
@@ -863,6 +870,29 @@
                         <div class="track-duration">${track.duration}</div>
                     </div>
                 `;
+                
+                // Add click event to play/pause track
+                trackItem.addEventListener('click', () => {
+                    if (window.globalAudioPlayer) {
+                        const isCurrentTrack = (
+                            window.globalAudioPlayer.currentTrackIndex === index &&
+                            window.globalAudioPlayer.currentPlaylist === 'Instrumentals'
+                        );
+                        
+                        if (isCurrentTrack && window.globalAudioPlayer.isPlaying && !window.globalAudioPlayer.audio.paused) {
+                            // If this track is currently playing, pause it
+                            window.globalAudioPlayer.pause();
+                        } else if (isCurrentTrack && !window.globalAudioPlayer.isPlaying) {
+                            // If this is the current track but paused, resume it
+                            window.globalAudioPlayer.resume();
+                        } else {
+                            // Otherwise, play this track from the beginning
+                            window.globalAudioPlayer.setPlaylist(tracks, 'Instrumentals');
+                            window.globalAudioPlayer.playTrack(index);
+                        }
+                    }
+                });
+                
                 trackList.appendChild(trackItem);
             });
         }
@@ -892,6 +922,29 @@
                         More Info
                     </button>
                 `;
+                
+                // Add click event to play/pause track
+                trackCard.addEventListener('click', () => {
+                    if (window.globalAudioPlayer) {
+                        const isCurrentTrack = (
+                            window.globalAudioPlayer.currentTrackIndex === index &&
+                            window.globalAudioPlayer.currentPlaylist === 'Instrumentals'
+                        );
+                        
+                        if (isCurrentTrack && window.globalAudioPlayer.isPlaying && !window.globalAudioPlayer.audio.paused) {
+                            // If this track is currently playing, pause it
+                            window.globalAudioPlayer.pause();
+                        } else if (isCurrentTrack && !window.globalAudioPlayer.isPlaying) {
+                            // If this is the current track but paused, resume it
+                            window.globalAudioPlayer.resume();
+                        } else {
+                            // Otherwise, play this track from the beginning
+                            window.globalAudioPlayer.setPlaylist(tracks, 'Instrumentals');
+                            window.globalAudioPlayer.playTrack(index);
+                        }
+                    }
+                });
+                
                 tracksGrid.appendChild(trackCard);
             });
         }

@@ -75,7 +75,7 @@ class GlobalAudioPlayer {
                 <div id="globalAudioPlayer" class="global-audio-player">
                     <button id="globalPlayerClose" class="global-player-close">
                         <i class="fas fa-times"></i>
-                    </button>
+                                    </button>
                     <div class="global-player-content">
                         <div class="global-player-info">
                             <div class="global-player-cover">
@@ -108,12 +108,12 @@ class GlobalAudioPlayer {
                                 </button>
                             </div>
                             <div class="global-volume-control">
-                                <button id="globalMuteBtn" class="global-volume-btn" title="Mute/Unmute">
+                                <button id="globalMuteBtn" class="global-volume-btn" title="Volume">
                                     <i class="fas fa-volume-up"></i>
                                 </button>
                                 <div class="global-volume-slider-container">
                                     <input type="range" id="globalVolumeSlider" class="global-volume-slider" 
-                                           min="0" max="100" value="70" title="Volume Control">
+                                           min="0" max="100" value="70" title="Volume Control" orient="vertical">
                                 </div>
                             </div>
                         </div>
@@ -204,8 +204,14 @@ class GlobalAudioPlayer {
         }
         
         if (muteBtn) {
-            muteBtn.addEventListener('click', () => {
-                this.toggleMute();
+            muteBtn.addEventListener('click', (e) => {
+                // On mobile, toggle volume slider visibility
+                if (window.innerWidth <= 768) {
+                    e.stopPropagation();
+                    this.toggleVolumeSlider();
+                } else {
+                    this.toggleMute();
+                }
             });
         }
 
@@ -214,11 +220,32 @@ class GlobalAudioPlayer {
         const progressContainer = document.querySelector('.global-progress');
         
         if (progressContainer) {
-            progressContainer.addEventListener('click', (e) => this.seekToPosition(e));
-            progressContainer.addEventListener('mousedown', (e) => this.startDragging(e));
+            // Add a flag to prevent click events after touch interactions
+            let touchInteraction = false;
+            
+            progressContainer.addEventListener('click', (e) => {
+                // Prevent click if we just had a touch interaction
+                if (touchInteraction) {
+                    touchInteraction = false;
+                    return;
+                }
+                this.seekToPosition(e);
+            });
+            
+            progressContainer.addEventListener('mousedown', (e) => {
+                // Only handle mouse events if not a touch device interaction
+                if (e.pointerType !== 'touch') {
+                    this.startDragging(e);
+                }
+            });
             
             // Touch support for mobile
-            progressContainer.addEventListener('touchstart', (e) => this.startTouchDragging(e));
+            progressContainer.addEventListener('touchstart', (e) => {
+                touchInteraction = true;
+                this.startTouchDragging(e);
+                // Reset the flag after a short delay
+                setTimeout(() => { touchInteraction = false; }, 300);
+            }, { passive: false });
         }
 
         // Floating music button
@@ -249,12 +276,14 @@ class GlobalAudioPlayer {
             this.isPlaying = true;
             try{console.log('[Audio] play', { src: this.audio.src, t: this.audio.currentTime });}catch(_){ }
             this.updatePlayerDisplay();
+            this.updateTrackButtonStates();
             this.saveStateToStorage();
         });
         this.audio.addEventListener('pause', () => {
             this.isPlaying = false;
             try{console.log('[Audio] pause', { src: this.audio.src, t: this.audio.currentTime });}catch(_){ }
             this.updatePlayerDisplay();
+            this.updateTrackButtonStates();
             this.saveStateToStorage();
         });
 
@@ -285,6 +314,11 @@ class GlobalAudioPlayer {
             this.saveStateToStorage();
             try{console.log('[PJAX] load: restoring audio state (non-destructive)', { playing: this.isPlaying, paused: this.audio.paused, t: this.audio.currentTime, src: this.audio.src });}catch(_){ }
             this.restoreAudioState();
+            
+            // Update button states after a short delay to ensure DOM elements are ready
+            setTimeout(() => {
+                this.updateTrackButtonStates();
+            }, 100);
 
             // If we intended to keep playing, try to continue without reloading src
             if (this.isPlaying && this.currentTrackIndex >= 0 && this.audio.paused) {
@@ -293,6 +327,7 @@ class GlobalAudioPlayer {
                     const reminder = document.getElementById('globalPlayerReminder');
                     if (reminder) reminder.style.display = 'none';
                     this.updatePlayerDisplay();
+                    this.updateTrackButtonStates();
                 }).catch((err) => {
                     try{console.warn('[PJAX] resume: immediate blocked', err && (err.name+': '+err.message));}catch(_){ }
                     // Fallback: muted autoplay (allowed by most browsers), then unmute
@@ -303,6 +338,7 @@ class GlobalAudioPlayer {
                         setTimeout(() => {
                             this.audio.muted = prevMuted;
                             this.updatePlayerDisplay();
+                            this.updateTrackButtonStates();
                         }, 100);
                         const reminder = document.getElementById('globalPlayerReminder');
                         if (reminder) reminder.style.display = 'none';
@@ -316,6 +352,7 @@ class GlobalAudioPlayer {
                             const r = document.getElementById('globalPlayerReminder');
                             if (r) r.style.display = 'none';
                             this.updatePlayerDisplay();
+                            this.updateTrackButtonStates();
                         };
                         document.addEventListener('click', resume, { once: true });
                         document.addEventListener('keydown', resume, { once: true });
@@ -333,6 +370,7 @@ class GlobalAudioPlayer {
                 // Hide reminder after user interaction
                 const reminder = document.getElementById('globalPlayerReminder');
                 if (reminder) reminder.style.display = 'none';
+                this.updateTrackButtonStates();
             }
         }, { once: true });
         
@@ -345,6 +383,7 @@ class GlobalAudioPlayer {
                 // Hide reminder after user interaction
                 const reminder = document.getElementById('globalPlayerReminder');
                 if (reminder) reminder.style.display = 'none';
+                this.updateTrackButtonStates();
             }
         }, { once: true });
     }
@@ -411,31 +450,70 @@ class GlobalAudioPlayer {
         
         const progressContainer = e.currentTarget;
         let isDragging = true;
+        let hasMoved = false; // Track if user actually dragged
+        let lastUpdateTime = 0;
+        const updateThrottle = 16; // ~60fps updates
         
         const handleTouchMove = (e) => {
             if (!isDragging) return;
             e.preventDefault(); // Prevent scrolling during drag
+            e.stopPropagation(); // Prevent event bubbling
+            
+            hasMoved = true; // Mark that user has dragged
             
             const touch = e.touches[0];
+            if (!touch) return; // Safety check
+            
             const rect = progressContainer.getBoundingClientRect();
             const touchX = Math.max(0, Math.min(touch.clientX - rect.left, rect.width));
             const width = rect.width;
             const seekTime = (touchX / width) * this.audio.duration;
             
-            this.audio.currentTime = seekTime;
+            // Update progress bar visually immediately (no throttling for visual feedback)
+            const progressBar = document.getElementById('globalProgressBar');
+            if (progressBar) {
+                progressBar.style.width = `${(touchX / width) * 100}%`;
+            }
+            
+            // Throttle audio seeking for performance
+            const now = Date.now();
+            if (now - lastUpdateTime >= updateThrottle) {
+                lastUpdateTime = now;
+                this.audio.currentTime = seekTime;
+            }
         };
         
-        const handleTouchEnd = () => {
+        const handleTouchEnd = (e) => {
             isDragging = false;
             document.removeEventListener('touchmove', handleTouchMove, { passive: false });
             document.removeEventListener('touchend', handleTouchEnd);
+            document.removeEventListener('touchcancel', handleTouchCancel);
+            
+            // If user didn't drag, treat as a tap to seek
+            if (!hasMoved && e.changedTouches && e.changedTouches[0]) {
+                const touch = e.changedTouches[0];
+                const rect = progressContainer.getBoundingClientRect();
+                const touchX = Math.max(0, Math.min(touch.clientX - rect.left, rect.width));
+                const width = rect.width;
+                const seekTime = (touchX / width) * this.audio.duration;
+                this.audio.currentTime = seekTime;
+            }
+        };
+        
+        const handleTouchCancel = () => {
+            isDragging = false;
+            document.removeEventListener('touchmove', handleTouchMove, { passive: false });
+            document.removeEventListener('touchend', handleTouchEnd);
+            document.removeEventListener('touchcancel', handleTouchCancel);
         };
         
         document.addEventListener('touchmove', handleTouchMove, { passive: false });
         document.addEventListener('touchend', handleTouchEnd);
+        document.addEventListener('touchcancel', handleTouchCancel);
         
-        // Prevent default touch behavior
+        // Prevent default touch behavior and event bubbling
         e.preventDefault();
+        e.stopPropagation();
     }
 
     /**
@@ -444,18 +522,7 @@ class GlobalAudioPlayer {
      * Allows users to click on any track to play it
      */
     addTrackClickHandlers() {
-        document.addEventListener('click', (e) => {
-            const trackItem = e.target.closest('.track-item, .track-card, .song-card, .instrumental-card');
-            if (trackItem) {
-                e.preventDefault();
-                const trackIndex = parseInt(trackItem.dataset.trackIndex);
-                const playlistName = trackItem.dataset.playlist;
-                
-                if (!isNaN(trackIndex) && playlistName) {
-                    this.playTrackFromPlaylist(trackIndex, playlistName);
-                }
-            }
-        });
+        // Removed - tracks already have their own click handlers in HTML files
     }
 
     /**
@@ -508,6 +575,7 @@ class GlobalAudioPlayer {
                     this.showFloatingButton();
                 }
                 this.updatePlayerDisplay();
+                this.updateTrackButtonStates();
             }
         }
     }
@@ -589,7 +657,7 @@ class GlobalAudioPlayer {
             { title: "Prisoner of Love", filename: "Denny Vaughan - Songs/Prisoner of Love.mp3" },
             { title: "To Bed Early", filename: "Denny Vaughan - Songs/To Bed Early.mp3" },
             { title: "As Long As I Live", filename: "Denny Vaughan - Songs/As Long As I Live.mp3" },
-            { title: "Cynthia's in Love", filename: "Denny Vaughan - Songs/Cynthia's in Love.mp3" },
+            { title: "Cynthia's in Love", filename: "Denny Vaughan - Songs/Cynthia_s in Love.mp3" },
             { title: "The Old Lamplighter", filename: "Denny Vaughan - Songs/The Old Lamplighter.mp3" },
             { title: "The Crystal Gazer", filename: "Denny Vaughan - Songs/The Crystal Gazer.mp3" },
             { title: "I Never Loved Anyone", filename: "Denny Vaughan - Songs/I Never Loved Anyone.mp3" },
@@ -685,12 +753,45 @@ class GlobalAudioPlayer {
         
         this.showPlayer();
         this.updatePlayerDisplay();
+        this.updateTrackButtonStates();
         this.saveStateToStorage(true);
         
         // Add to played tracks for random mode
         if (this.playbackMode === 'random') {
             this.playedTracks.push(index);
         }
+    }
+
+    /**
+     * Pause Audio
+     * Pauses the currently playing audio
+     */
+    pause() {
+        if (this.currentTrackIndex < 0) return;
+        
+        this.audio.pause();
+        this.isPlaying = false;
+        
+        this.updatePlayerDisplay();
+        this.updateTrackButtonStates();
+        this.saveStateToStorage();
+    }
+
+    /**
+     * Resume Audio
+     * Resumes the currently paused audio from its current position
+     */
+    resume() {
+        if (this.currentTrackIndex < 0) return;
+        
+        this.audio.play().catch(e => {
+            console.log('Play prevented, user needs to interact first');
+        });
+        this.isPlaying = true;
+        
+        this.updatePlayerDisplay();
+        this.updateTrackButtonStates();
+        this.saveStateToStorage();
     }
 
     /**
@@ -702,18 +803,11 @@ class GlobalAudioPlayer {
         
         if (this.isPlaying && !this.audio.paused) {
             // Currently playing, pause it
-            this.audio.pause();
-            this.isPlaying = false;
+            this.pause();
         } else {
-            // Currently paused, play it
-            this.audio.play().catch(e => {
-                console.log('Play prevented, user needs to interact first');
-            });
-            this.isPlaying = true;
+            // Currently paused, resume it
+            this.resume();
         }
-        
-        this.updatePlayerDisplay();
-        this.saveStateToStorage();
     }
 
     /**
@@ -996,6 +1090,63 @@ class GlobalAudioPlayer {
      */
     updateDuration() {
         // Duration is handled by the progress bar
+    }
+
+    /**
+     * Toggle Volume Slider Visibility (Mobile)
+     * Shows/hides the vertical volume slider on mobile devices
+     */
+    toggleVolumeSlider() {
+        const sliderContainer = document.querySelector('.global-volume-slider-container');
+        if (sliderContainer) {
+            const isVisible = sliderContainer.classList.contains('show');
+            if (isVisible) {
+                sliderContainer.classList.remove('show');
+            } else {
+                sliderContainer.classList.add('show');
+                // Hide slider after 3 seconds of inactivity
+                setTimeout(() => {
+                    if (!sliderContainer.matches(':hover')) {
+                        sliderContainer.classList.remove('show');
+                    }
+                }, 3000);
+            }
+        }
+    }
+
+    /**
+     * Update Track Button States
+     * Updates the play/pause button states on songs and instrumentals pages
+     */
+    updateTrackButtonStates() {
+        // Update all track icons on the current page
+        const trackCards = document.querySelectorAll('.track-card, .track-item');
+        
+        trackCards.forEach((card, index) => {
+            const trackIcon = card.querySelector('.track-icon i');
+            const cardTrackIndex = parseInt(card.dataset.trackIndex);
+            const cardPlaylist = card.dataset.playlist;
+            
+            if (trackIcon) {
+                // Check if this is the currently playing track
+                const isCurrentTrack = (
+                    this.currentTrackIndex === cardTrackIndex && 
+                    this.currentPlaylist === cardPlaylist &&
+                    this.isPlaying && 
+                    !this.audio.paused
+                );
+                
+                if (isCurrentTrack) {
+                    // Show pause button for currently playing track
+                    trackIcon.className = 'fas fa-pause';
+                    card.classList.add('playing');
+                } else {
+                    // Show play button for all other tracks
+                    trackIcon.className = 'fas fa-play';
+                    card.classList.remove('playing');
+                }
+            }
+        });
     }
 
     /**
